@@ -1,0 +1,26 @@
+[tools]
+node = "24.21.0"
+
+[tasks.install]
+description = "Install the plugin's development dependencies from the lockfile"
+run = "npm ci"
+
+[tasks.typecheck]
+description = "Typecheck the client and the server code"
+run = "npm run typecheck"
+
+[tasks.test]
+description = "Run the tests"
+run = "npm test"
+
+[tasks.lint]
+description = "Lint the plugin"
+run = "npm run lint"
+
+[tasks.fmt]
+description = "Format the plugin"
+run = "npm run fmt"
+
+[tasks.check]
+description = "Check formatting and lint, typecheck, and test"
+run = "npm run check"

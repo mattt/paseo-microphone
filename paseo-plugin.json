@@ -1,0 +1,9 @@
+{
+  "id": "preferred-microphone",
+  "name": "Preferred Microphone",
+  "description": "Make Paseo's dictation use a microphone you choose instead of the system default.",
+  "media": [],
+  "requirements": {
+    "paseo": ">=0.14.0"
+  }
+}
