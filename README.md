@@ -1,69 +1,67 @@
 # paseo-microphone
 
-Preferred Microphone makes Paseo's dictation use a microphone you choose.
-Paseo records from the system default input;
-on a Mac, connecting AirPods makes them the default.
-This plugin keeps dictation on your preferred microphone.
+A [Paseo](https://paseo.sh) plugin that keeps dictation on the microphone you choose.
+
+Paseo records from your Mac's default input,
+and macOS makes AirPods the default input whenever they connect.
+So if you dictate with AirPods on,
+Paseo records through their microphone —
+and your playback sounds worse while it does.
+This plugin points Paseo at the microphone you actually want.
 
 ## Install
 
-Use Paseo 0.14.0 or later with the desktop app.
-Turn on **Settings > Plugins > Enable plugins** on the target daemon,
-then run:
+You'll need Paseo 0.14.0 or later with the desktop app.
+Turn on **Settings > Plugins > Enable plugins**, then run:
 
 ```sh
 paseo plugin add git:mattt/paseo-microphone
 ```
 
-Paseo compiles the TypeScript; no build step is needed.
-Open the plugin's **Microphone** screen from **Settings > Plugins**.
-If microphone names are hidden, grant Paseo microphone permission
-by starting dictation once, then return to settings.
+Then open the plugin's **Microphone** screen from **Settings > Plugins**.
+If microphone names are hidden,
+start dictation once to grant Paseo microphone permission,
+then come back.
 
 ## Settings
 
-- **Preferred microphone:** Choose the microphone to use when connected.
-  "Automatic (system default)" uses the default, subject to the never-use list.
-  The plugin stores the name because browser device IDs can change.
-- **Never use:** Enter comma-separated name fragments, such as `AirPods`,
-  then select **Save**.
-  Matching ignores case and includes devices connected later.
-  With no preferred microphone connected, an avoided default is replaced
-  by the first connected microphone whose name is not on the list.
-  A connected preferred microphone takes priority, even if listed here.
+- **Preferred microphone:** The microphone to use whenever it's connected.
+  "Automatic (system default)" uses the default, minus the never-use list.
+  The plugin remembers the device by name, because browser device IDs can change.
+- **Never use:** Comma-separated name fragments, such as `AirPods`.
+  Matching ignores case.
+  When your preferred microphone isn't connected
+  and the default is on this list,
+  the plugin uses the first connected microphone that isn't.
+  A connected preferred microphone always wins, even if it's on the list.
 
-If no replacement is available, dictation uses the system default.
-The never-use list therefore does not guarantee that a microphone stays unused.
-The screen lists connected microphones, marks the default and expected input,
-and updates when devices connect or disconnect.
-This is the expected selection, not the active recording device;
-a fallback can change the input used.
-Settings are shared by all windows connected to the same Paseo daemon.
-Device lists stay in the app window; saved settings go to the daemon.
+If nothing else is connected, dictation falls back to the system default,
+so the never-use list can't promise that a microphone stays unused.
 
-## How it works and limits
+The screen lists connected microphones and marks the one the plugin expects to use.
+That's the expected choice, not the active device; a fallback can change what records.
+Settings apply to every window connected to the same Paseo daemon.
 
-Paseo has no input-device setting.
-The plugin wraps `navigator.mediaDevices.getUserMedia` in the desktop window.
-For audio requests without a device, it reads settings, lists microphones,
-and adds `deviceId: { exact: <id> }` while keeping other constraints.
-It converts `audio: true` to an object.
-Video-only requests and requests that specify a device pass through unchanged.
+## How it works
 
-Requests also pass through unchanged if settings fail or take over one second,
-or if listing devices fails or takes over one additional second.
-If the chosen device is missing, unreadable, or cannot meet the constraints,
-the plugin retries the original request, which can use the default.
-Unloading restores the original function;
-reloading replaces the wrapper without stacking copies.
+Paseo doesn't have an input-device setting (yet),
+so the plugin wraps `navigator.mediaDevices.getUserMedia` in the desktop window.
+For an audio request that doesn't name a device,
+it picks a microphone from your settings
+and adds `deviceId: { exact: <id> }`, keeping the other constraints.
+Requests that already name a device, or ask only for video, pass through untouched.
 
-A Paseo update can bypass this wrapper by changing how it opens microphones.
-The plugin does nothing in the phone app.
+If reading settings or listing devices fails or takes more than a second,
+the request goes through unchanged.
+If the chosen device is missing or can't meet the constraints,
+the plugin retries the original request.
+Unloading the plugin restores the original function.
+
+A Paseo update could bypass this, and the plugin does nothing in the phone app.
 
 ## Development
 
-Use [mise](https://mise.jdx.dev/) for Node.js and tasks.
-Vite+ checks formatting and lint and runs tests.
+Use [mise](https://mise.jdx.dev/) for Node.js and tasks:
 
 ```sh
 mise run install
@@ -72,12 +70,8 @@ paseo plugin install "$PWD"
 paseo plugin reload preferred-microphone
 ```
 
-Run the local install from the repository root; reload after source changes.
-`client/web.ts` handles browser globals;
-`client/microphone.ts` selects inputs and rewrites constraints.
-Tests use a stand-in for `MediaDevices`.
-To remove either installation, run `paseo plugin remove preferred-microphone`;
-the local source directory is kept.
+Reload after you change the source.
+To uninstall, run `paseo plugin remove preferred-microphone`.
 
 ## License
 
