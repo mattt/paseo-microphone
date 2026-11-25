@@ -72,6 +72,13 @@ describe("audioInputs and systemDefault", () => {
     expect(systemDefault(airpodsAsDefault())?.deviceId).toBe("airpods");
   });
 
+  it("uses the default entry's group to distinguish inputs with the same label", () => {
+    const devices = airpodsAsDefault().map((device) =>
+      device.deviceId === "built-in" ? { ...device, label: AIRPODS } : device,
+    );
+    expect(systemDefault(devices)?.deviceId).toBe("airpods");
+  });
+
   it("finds the default by group when the label does not match", () => {
     const devices = airpodsAsDefault().map((device) =>
       device.deviceId === "default" ? { ...device, label: "Default" } : device,

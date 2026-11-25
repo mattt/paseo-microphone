@@ -42,9 +42,10 @@ export function systemDefault(devices: readonly DeviceInfo[]): DeviceInfo | null
     const label = entry.label.startsWith(DEFAULT_LABEL_PREFIX)
       ? entry.label.slice(DEFAULT_LABEL_PREFIX.length)
       : entry.label;
-    const match =
-      inputs.find((input) => input.label === label) ??
-      inputs.find((input) => entry.groupId !== "" && input.groupId === entry.groupId);
+    const sameLabel = inputs.filter((input) => input.label === label);
+    const sameGroup = (input: DeviceInfo) =>
+      entry.groupId !== "" && input.groupId === entry.groupId;
+    const match = sameLabel.find(sameGroup) ?? sameLabel[0] ?? inputs.find(sameGroup);
     if (match) return match;
   }
   return inputs[0] ?? null;
